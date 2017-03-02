@@ -29,4 +29,11 @@ case, we convert a parse tree into an abstract syntax tree, which is
 what we wanted all along.
 
 JavaCC specifies all three of Scanning, Parsing, and Tree Abstraction
-in one file with two sections.  
+in one file with two sections.
+
+
+Running the code:
+If you have racket on your path, you can use the 'run' script as:
+  run file.exp
+
+
