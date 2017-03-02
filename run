@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ $# -ne 1 ]; then
+   cat <<EOF ;
+   Usage:
+   run file.exp
+EOF
+   exit 1;
+fi
+
+
+racket main.rkt $1
