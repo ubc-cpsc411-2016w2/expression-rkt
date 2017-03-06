@@ -136,7 +136,8 @@
 
 (define cond-ast
   (Program
-   (list (Assign 'l (IntegerLiteral 5)) (Assign 'r (IntegerLiteral 8)))
+   (list (Assign 'l (IntegerLiteral 5))
+         (Assign 'r (IntegerLiteral 8)))
    (Print
     (Conditional
      (LessThan (IdentifierExp 'l) (IdentifierExp 'r))
