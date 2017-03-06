@@ -86,6 +86,7 @@
          [(MINUS? o) (MINUS)]))         
      (define (fn-for-mult-expr me)
        (type-case _mult-expr me
+         ;; WARNING: Non-idiomatic code!
          [mult-expr (n m*) (append (fn-for-not-expr n)
                                    (apply append
                                           (map fn-for-mult-sfx m*)))]))

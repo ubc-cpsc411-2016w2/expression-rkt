@@ -37,7 +37,7 @@
                    (string-append 
                     "{ "
                     (apply string-append (map (λ (t) (format "~a " t)) t*))
-                    "}"))])
+                    "}\n"))])
     (set! edges (string-append edges e))))
 
 ;; -> Void

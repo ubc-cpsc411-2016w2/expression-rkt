@@ -67,13 +67,14 @@
 (define-type _expr
   [expr (c comp-expr?) (e (maybe-of? expr-sfx?))])
 
+;; RG: Consider dropping maybe, use a direct datatype?
 (define-type _expr-sfx
   [expr-sfx (conseq expr?) (altern expr?)])
 
 
 ;; CompExpression ::= AddExpression CompSuffix
 ;; CompSuffix ::= ε
-;;              | (SMALLER) AddExpression
+;;              | (SMALLER) AddExpression CompSuffix
 (define-type _comp-expr
   [comp-expr (a add-expr?) (cs (listof? add-expr?))])
 
@@ -93,9 +94,9 @@
 (define (add-op? x) (or (PLUS? x) (MINUS? x)))
 
 
-;; MultExpression ::= NotExpression MultList
-;; MultList ::= ε
-;;           | (MULT) NotExpression MultList
+;; MultExpression ::= NotExpression MultSuffix
+;; MultSuffix ::= ε
+;;           | (MULT) NotExpression MultSuffix
 (define-type _mult-expr
   [mult-expr (n not-expr?) (ms (listof not-expr?))])
 
@@ -129,7 +130,8 @@
            [asgn-stmt (i e) (... (fn-for-identifier i) (fn-for-expr e))]))
        (define (fn-for-expr e)
          (type-case _expr e
-           [expr (c e) (... (fn-for-comp-expr c) (fn-for-maybe e))]))
+           [expr (c e)
+                 (... (fn-for-comp-expr c) (fn-for-maybe-expr-suffix e))]))
        (define (fn-for-maybe-expr-suffix m)
          (type-case maybe m
            [None () (...)]
@@ -139,8 +141,8 @@
            [expr-sfx (c a) (... (fn-for-expr c) (fn-for-expr a))]))
        (define (fn-for-comp-expr ce)
          (type-case _comp-expr ce
-           [comp-expr (a c*)
-                      (... (fn-for-add-expr a) (map fn-for-comp-sfx c*))]))
+           [comp-expr (a cs)
+                      (... (fn-for-add-expr a) (fn-for-comp-sfx cs))]))
        (define (fn-for-comp-sfx cs)
          (cond [(null? cs) (...)]
                [else (...  (fn-for-add-expr (first cs))
