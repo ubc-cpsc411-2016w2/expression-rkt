@@ -9,7 +9,7 @@
 (define edges "")
 (define nodes  "")
 
-(define (reset)
+(define (reset-graph)
   (begin
     (set! edges "")
     (set! nodes "")))
@@ -20,6 +20,16 @@
 (define (emit-edge x)
   (set! edges (string-append edges x)))
 
+(define (emit-edges s . t*)
+  (let ([e
+         (format "~a -> ~a"
+                 s
+                 (string-append 
+                  "{ "
+                  (apply string-append (map (λ (t) (format "~a " t)) t*))
+                  "}"))])
+    (set! edges (string-append edges e))))
+                 
 (define (print-graph)
   (begin
     (printf "digraph ast {\n")
@@ -38,48 +48,55 @@
                           [g1 (gensym)])
                       (emit-node g "Id" #;"IdentifierExp")
                       (emit-node g1 (format "~a" i))
-                      (emit-edge (format "~a -> { ~a }\n" g g1))
+                      (emit-edges g g1)
+                      #;(emit-edge (format "~a -> { ~a }\n" g g1))
                       g)]
     [IntegerLiteral (n)
                     (let ([g (gensym)]
                           [g1 (gensym)])
                       (emit-node g "Int" #;"IntegerLiteral")
                       (emit-node g1 (format "~a" n))
-                      (emit-edge (format "~a -> { ~a }\n" g g1))
+                      (emit-edges g g1)
+                      #;(emit-edge (format "~a -> { ~a }\n" g g1))
                       g)]
     [Plus (lhs rhs)
           (let ([g (gensym)])
             (emit-node g "+" #;"Plus")
             (let ([g1 (expr->dot lhs)]
                   [g2 (expr->dot rhs)])
-              (emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
+              (emit-edges g g1 g2)
+              #;(emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
               g))]
     [Minus (lhs rhs)
           (let ([g (gensym)])
             (emit-node g "-" #;"Minus")
             (let ([g1 (expr->dot lhs)]
                   [g2 (expr->dot rhs)])
-              (emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
+              (emit-edges g g1 g2)
+              #;(emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
               g))]
     [Times (lhs rhs)
           (let ([g (gensym)])
             (emit-node g "*" #;"Times")
             (let ([g1 (expr->dot lhs)]
                   [g2 (expr->dot rhs)])
-              (emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
+              (emit-edges g g1 g2)
+              #;(emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
               g))]
     [LessThan (lhs rhs)
           (let ([g (gensym)])
             (emit-node g "<" #;"LessThan")
             (let ([g1 (expr->dot lhs)]
                   [g2 (expr->dot rhs)])
-              (emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
+              (emit-edges g g1 g2)
+              #;(emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
               g))]
     [Not (e)
           (let ([g (gensym)])
             (emit-node g "!" #;"Not")
             (let ([g1 (expr->dot e)])
-              (emit-edge (format "~a -> { ~a }\n" g g1))
+              (emit-edges g g1)
+              #;(emit-edge (format "~a -> { ~a }\n" g g1))
               g))]
     [Conditional (pred conseq altern)
           (let ([g (gensym)])
@@ -87,7 +104,8 @@
             (let ([g1 (expr->dot pred)]
                   [g2 (expr->dot conseq)]
                   [g3 (expr->dot altern)])
-              (emit-edge (format "~a -> { ~a ~a ~a }\n" g g1 g2 g3))
+              (emit-edges g g1 g2 g3)
+              #;(emit-edge (format "~a -> { ~a ~a ~a }\n" g g1 g2 g3))
               g))]))
 
 
@@ -102,13 +120,15 @@
               (emit-node g "=" #;"Assign")
               (emit-node g1 (format "~a" i))
               (let ([g2 (expr->dot e)])
-                (emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
+                (emit-edges g g1 g2)
+                #;(emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
                 g))]
     [Print (e)
            (let ([g (gensym)])
              (emit-node g "print" #;"Print")
              (let ([g1 (expr->dot e)])
-               (emit-edge (format "~a -> { ~a }\n" g g1)))
+               (emit-edges g g1)
+               #;(emit-edge (format "~a -> { ~a }\n" g g1)))
              g)]))
 
 
@@ -122,7 +142,8 @@
        (emit-node g ";")
        (let ([g1 (stmt->dot (car s*))]
              [g2 (stmt*->dot (cdr s*))])
-         (emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
+         (emit-edges g g1 g2)
+         #;(emit-edge (format "~a -> { ~a ~a }\n" g g1 g2))
          g))]
     [else ;; last statement
      (stmt->dot s*)]))
@@ -132,13 +153,14 @@
 ;; Emit the DOT file for p to standard out
 (define (pgm->dot p)
   (begin
-    (reset)
+    (reset-graph)
     (type-case _Program p
       [Program (a* pr)
                (let ([pgm (gensym)])
                  (emit-node pgm "Program")
                  (let ([g (stmt*->dot (append a* pr))]) ;; Improper list!
-                   (emit-edge (format "~a -> { ~a }" pgm g))
+                   (emit-edges pgm g)
+                   #;(emit-edge (format "~a -> { ~a }" pgm g))
                    pgm))])  
     (print-graph)))
 
