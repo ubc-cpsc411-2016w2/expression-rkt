@@ -176,7 +176,7 @@
 ;; Example
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define print-5
+(define print-5-tree
   (print-pgm
    (expr
     (comp-expr
@@ -189,3 +189,32 @@
      '())
     (None))))
   
+(module* read #f
+  (require "scanner.rkt")
+  (require "parser.rkt")
+  (require "tree-abstraction.rkt")
+  (provide exp->dotfile print-5)
+
+  (define (force-delete-file p)
+    (if (file-exists? p)
+        (delete-file p)
+        (void)))
+  
+  ;; FileName -> Pgm
+  ;; produce an Expression parse tree from the given file
+  (define (parse file)
+    (parse-tokens
+      (scan-file file)))
+
+  (define (print-5)
+    (force-delete-file "print5.dot")
+    (pgm->dotfile "print5.dot"  print-5-tree)
+    (system "/opt/local/bin/dot -Tpng print5.dot > print5.png"))
+
+  (define (exp->dotfile name)
+    (force-delete-file (format "~a-pt.dot" name))
+    (pgm->dotfile (format "~a-pt.dot" name)
+                  (parse (format "sample/~a.exp" name)))
+    (system
+     (format "/opt/local/bin/dot -Tpng ~a-pt.dot > ~a-pt.png" name name)))
+  )

@@ -214,7 +214,7 @@ digraph cond {
   (require "scanner.rkt")
   (require "parser.rkt")
   (require "tree-abstraction.rkt")
-  (provide ast ex1 fib condd)
+  (provide exp->dotfile ast ex1 fib condd)
 
   (define (force-delete-file p)
     (if (file-exists? p)
@@ -232,7 +232,7 @@ digraph cond {
     (force-delete-file "ex1.dot")
     (pgm->dotfile "ex1.dot"  ex1-ast)
     (system "/opt/local/bin/dot -Tpng ex1.dot > ex1.png"))
-  
+
   (define (fib)
     (force-delete-file "fib.dot")
     (pgm->dotfile "fib.dot" (ast "sample/fib.exp") #;fib-ast)
@@ -243,5 +243,11 @@ digraph cond {
     (pgm->dotfile "cond.dot" (ast "sample/cond.exp") #;cond-ast)
     (system "/opt/local/bin/dot -Tpng cond.dot > cond.png"))
 
+  (define (exp->dotfile name)
+    (force-delete-file (format "~a-ast.dot" name))
+    (pgm->dotfile (format "~a-ast.dot" name)
+                  (ast (format "sample/~a.exp" name)))
+    (system
+     (format "/opt/local/bin/dot -Tpng ~a-ast.dot > ~a-ast.png" name name)))
   ) ; module
 
