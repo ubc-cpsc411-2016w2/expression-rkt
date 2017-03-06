@@ -92,6 +92,5 @@
     (interp-pgm
      (abstract-parse-tree
       (parse-tokens
-       (scan-file "./fib.exp"))))))
-  
-           
+       (scan-file "sample/fib.exp"))))))
+
