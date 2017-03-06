@@ -246,15 +246,6 @@ digraph cond {
 }
 ")
 
-(define (fib)
-  (delete-file "fib.dot")
-  (pgm->dotfile "fib.dot" fib-ast)
-  (system "/opt/local/bin/dot -Tpng fib.dot > fib.png"))
-
-(define (condd)
-  (delete-file "cond.dot")
-  (pgm->dotfile "cond.dot" fib-ast)
-  (system "/opt/local/bin/dot -Tpng cond.dot > cond.png"))
 
 
 
@@ -262,12 +253,24 @@ digraph cond {
   (require "scanner.rkt")
   (require "parser.rkt")
   (require "tree-abstraction.rkt")
-  (provide (all-defined-out))
+  (provide ast fib condd)
 
   ;; FileName -> Program
   ;; produce an Expression AST from the given file
   (define (ast file)
     (abstract-parse-tree
      (parse-tokens
-      (scan-file file)))))
+      (scan-file file))))
+
+  (define (fib)
+    (delete-file "fib.dot")
+    (pgm->dotfile "fib.dot" (ast "sample/fib.exp") #;fib-ast)
+    (system "/opt/local/bin/dot -Tpng fib.dot > fib.png"))
+
+  (define (condd)
+    (delete-file "cond.dot")
+    (pgm->dotfile "cond.dot" (ast "sample/cond.exp") #;cond-ast)
+    (system "/opt/local/bin/dot -Tpng cond.dot > cond.png"))
+
+  ) ; module
 
