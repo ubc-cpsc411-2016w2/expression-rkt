@@ -119,7 +119,7 @@
 ;; Examples
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define ex1
+(define ex1-ast
   (Program  (list) (Print (IntegerLiteral 3))))
 
 (define fib-ast
@@ -213,8 +213,13 @@ digraph cond {
   (require "scanner.rkt")
   (require "parser.rkt")
   (require "tree-abstraction.rkt")
-  (provide ast fib condd)
+  (provide ast ex1 fib condd)
 
+
+  (define (force-delete-file p)
+    (if (file-exists? p)
+        (delete-file p)
+        (void)))
   ;; FileName -> Program
   ;; produce an Expression AST from the given file
   (define (ast file)
@@ -222,13 +227,18 @@ digraph cond {
      (parse-tokens
       (scan-file file))))
 
+  (define (ex1)
+    (force-delete-file "ex1.dot")
+    (pgm->dotfile "ex1.dot"  ex1-ast)
+    (system "/opt/local/bin/dot -Tpng ex1.dot > ex1.png"))
+  
   (define (fib)
-    (delete-file "fib.dot")
+    (force-delete-file "fib.dot")
     (pgm->dotfile "fib.dot" (ast "sample/fib.exp") #;fib-ast)
     (system "/opt/local/bin/dot -Tpng fib.dot > fib.png"))
 
   (define (condd)
-    (delete-file "cond.dot")
+    (force-delete-file "cond.dot")
     (pgm->dotfile "cond.dot" (ast "sample/cond.exp") #;cond-ast)
     (system "/opt/local/bin/dot -Tpng cond.dot > cond.png"))
 
